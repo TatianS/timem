@@ -48,7 +48,7 @@ public class TestBase {
 
     private static void getCookie() throws IOException {
         Properties properties = new Properties();
-        properties.load(new FileReader("C:\\Users\\amil\\TimeMastaTests\\src\\test\\resources\\app.properties"));
+        properties.load(new FileReader("src\\test\\resources\\app.properties"));
 
         suToken = given()
                 .with()
