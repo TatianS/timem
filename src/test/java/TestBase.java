@@ -38,13 +38,7 @@ public class TestBase {
                 .build();
     }
 
-    @Test
-    public void deleteFromHere() {
-        Response r = given().cookie("sessionid", suToken).get("/whoami");
-        r.prettyPrint();
 
-
-    }
 
     private static void getCookie() throws IOException {
         Properties properties = new Properties();
