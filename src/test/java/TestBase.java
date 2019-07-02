@@ -7,6 +7,7 @@ import io.restassured.specification.RequestSpecification;
 import org.apache.http.client.methods.RequestBuilder;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.Request;
 
 import java.io.FileNotFoundException;
@@ -19,7 +20,6 @@ import static io.restassured.RestAssured.*;
 public class TestBase {
 
     static RequestSpecification suSpec;
-
     private static String suToken;
 
 
@@ -30,61 +30,36 @@ public class TestBase {
         RestAssured.basePath = "/api";
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 
-        System.out.println("Befor!");
+        getCookie();
 
-//        retrieveTokens();
-//        suSpec = new RequestSpecBuilder()
-//                .setContentType(ContentType.JSON)
-//                .addCookie(suToken)
-//                .build();
+        suSpec = new RequestSpecBuilder()
+                .setContentType(ContentType.JSON)
+                .addCookie("sessionid",suToken)
+                .build();
     }
 
+    @Test
+    public void deleteFromHere() {
+        Response r = given().cookie("sessionid", suToken).get("/whoami");
+        r.prettyPrint();
 
-    private void retrieveTokens() throws IOException {
+
+    }
+
+    private static void getCookie() throws IOException {
         Properties properties = new Properties();
         properties.load(new FileReader("C:\\Users\\amil\\TimeMastaTests\\src\\test\\resources\\app.properties"));
 
-        //TODO add another users with different roles
-
-        suToken = getCookie(new JSONObject()
-                .put("username", properties.get("su.name"))
-                .put("password", properties.get("su.password")));
-        System.out.printf("");
+        suToken = given()
+                .with()
+                .body(new JSONObject()
+                        .put("username", properties.get("su.name"))
+                        .put("password", properties.get("su.password")).toString())
+                .contentType(ContentType.JSON)
+                .post("/login/").getCookie("sessionid");
+        System.out.println("Tokens retrieved!");
     }
 
-    private static String getCookie(JSONObject json) {
-    //    Response r = given().with().body(json.toString()).post(Endpoints.login);
-        Response r = given().with().body(json.toString()).contentType(ContentType.JSON).post(Endpoints.login);
 
-//        String cookie = given().body(json.toString()).post(Endpoints.login).getCookie("sessionid");
-        String cookie = given().contentType(ContentType.JSON).body("{\n" +
-                "  \"username\": \"su\",\n" +
-                "  \"password\": \"susu\"\n" +
-                "}").post(Endpoints.login).getCookie("sessionid");
-
-        //TODO - this probably is not nesessary here
-//        int attempts = 0;
-//        while (cookie == null && attempts < 10) {
-//            cookie = given().body(json.toString()).post(Endpoints.login).getCookie("sessionid");
-//            attempts++;
-//        }
-
-        return cookie;
-    }
-
-    Response getWithToken(String path, UserType user) {
-        switch (user) {
-            case SU:
-                return given().cookie("sessionid", suToken).get(path);
-            case USR:
-                return null;
-        }
-        return null;
-    }
-
-    public enum UserType {
-        SU,
-        USR
-    }
 
 }

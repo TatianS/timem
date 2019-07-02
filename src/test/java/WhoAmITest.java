@@ -1,4 +1,6 @@
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
@@ -9,17 +11,26 @@ import static io.restassured.RestAssured.given;
 
 public class WhoAmITest extends TestBase {
 
-    RequestSpecification whoSpec;
+    private RequestSpecification whoReqSpec;
+    private ResponseSpecification whoResSpec;
 
     @Before
     public void setup() {
-       //  whoSpec = suSpec;
+        whoResSpec = new ResponseSpecBuilder()
+                .expectStatusCode(200)
+                .build();
     }
 
     @Test
     public void suTest() {
-        Response response = given().get("https://timemaster-dev2.sidenis.local/api/whoami");
-              //  .spec(whoSpec).get(Endpoints.whoami);
-        response.prettyPrint();
+        //Response response =
+        given()
+                .spec(suSpec)
+                .when()
+                .get("/whoami")
+                .then()
+                .spec(whoResSpec);
+
+
     }
 }
