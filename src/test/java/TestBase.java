@@ -20,7 +20,9 @@ import static io.restassured.RestAssured.*;
 public class TestBase {
 
     static RequestSpecification suSpec;
+    static RequestSpecification userSpec;
     private static String suToken;
+    private static Properties properties;
 
 
     @Before
@@ -30,30 +32,47 @@ public class TestBase {
         RestAssured.basePath = "/api";
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 
-        getCookie();
+        properties = new Properties();
+        if (properties.isEmpty()) {
+            properties.load(new FileReader("src\\test\\resources\\app.properties"));
+        }
 
-        suSpec = new RequestSpecBuilder()
+        suSpec = createSpec(UserType.SU);
+        userSpec = createSpec(UserType.USR);
+    }
+
+    private RequestSpecification createSpec(UserType userType) {
+        return new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)
-                .addCookie("sessionid",suToken)
+                .addCookie("sessionid", retrieveToken(properties, userType.toString()))
                 .build();
     }
 
-
-
-    private static void getCookie() throws IOException {
-        Properties properties = new Properties();
-        properties.load(new FileReader("src\\test\\resources\\app.properties"));
-
-        suToken = given()
+    private static String retrieveToken(Properties properties, String type) {
+        return given()
                 .with()
                 .body(new JSONObject()
-                        .put("username", properties.get("su.name"))
-                        .put("password", properties.get("su.password")).toString())
+                        .put("username", properties.get(type + ".name"))
+                        .put("password", properties.get(type + ".password")).toString())
                 .contentType(ContentType.JSON)
                 .post("/login/").getCookie("sessionid");
-        System.out.println("Tokens retrieved!");
     }
 
+
+    private enum UserType {
+        USR("user"),
+        SU("su");
+
+        private final String name;
+
+        private UserType(String s) {
+            name = s;
+        }
+
+        public String toString() {
+            return this.name;
+        }
+    }
 
 
 }
