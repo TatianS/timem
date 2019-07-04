@@ -35,7 +35,19 @@ public class WhoAmITest extends TestBase {
                 .spec(whoResSpec)
                 .body("id", equalTo(352))
         ;
+    }
 
-
+    @Test
+    public void userTest() {
+        //Response response =
+        given()
+                .spec(userSpec)
+                .when()
+                .get("/whoami")
+                .then()
+                .spec(whoResSpec)
+                .body("id", equalTo(20))
+                .body("uid", equalTo("aa"))
+        ;
     }
 }
